@@ -1,0 +1,300 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Loan Enquiry API",
+    "version": "1.0.0",
+    "description": "API for retrieving loan enquiry information"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000"
+    }
+  ],
+  "paths": {
+    "/loan": {
+      "get": {
+        "summary": "End point to fetch the loan by id",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Loan ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "age": {
+                      "type": "integer"
+                    },
+                    "job": {
+                      "type": "string"
+                    },
+                    "marital": {
+                      "type": "string"
+                    },
+                    "education": {
+                      "type": "string"
+                    },
+                    "default": {
+                      "type": "boolean"
+                    },
+                    "balance": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": "00330EDA",
+                  "date": "2021-10-16",
+                  "age": 46,
+                  "job": "management",
+                  "marital": "single",
+                  "education": "primary",
+                  "default": false,
+                  "balance": 538
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Not Found",
+                  "error": "Not Found",
+                  "statusCode": 404
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loan/defaulted": {
+      "get": {
+        "summary": "End point to fetch defaulted loan along with Balance by year and with foreign currency using the current exchange rate",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Year"
+          },
+          {
+            "in": "query",
+            "name": "currency",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Currency"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "date": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "age": {
+                        "type": "integer"
+                      },
+                      "job": {
+                        "type": "string"
+                      },
+                      "marital": {
+                        "type": "string"
+                      },
+                      "education": {
+                        "type": "string"
+                      },
+                      "default": {
+                        "type": "integer"
+                      },
+                      "balance": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "id": "35567CE5",
+                    "date": "2022-11-24T20:00:00.000Z",
+                    "age": 48,
+                    "job": "technician",
+                    "marital": "divorced",
+                    "education": "secondary",
+                    "default": 1,
+                    "balance": "2.5565"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loan/distribution": {
+      "get": {
+        "summary": "End point to find the distribution of default v/s non default for a range of dates",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "startDate",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Start Date"
+          },
+          {
+            "in": "query",
+            "name": "endDate",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "End Date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "defaulted": {
+                      "type": "integer"
+                    },
+                    "nonDefaulted": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "defaulted": 28,
+                  "nonDefaulted": 1639
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loan/year": {
+      "get": {
+        "summary": "End point to fetch year with params like default / gender / job",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "defaultStatus",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Default Status"
+          },
+          {
+            "in": "query",
+            "name": "gender",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["married", "divorced", "single"]
+            },
+            "description": "Gender"
+          },
+          {
+            "in": "query",
+            "name": "job",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "admin",
+                "unknown",
+                "unemployed",
+                "management",
+                "housemaid",
+                "entrepreneur",
+                "student",
+                "blue-collar",
+                "self-employed",
+                "retired",
+                "technician",
+                "services"
+              ]
+            },
+            "description": "Job"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "example": [2020, 2019, 2022, 2021, 2017, 2016, 2015, 2018]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

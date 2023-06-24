@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  db:
+    image: biarms/mysql:5.7
+    restart: always
+    healthcheck:
+      test: "exit 0"
+    environment:
+      MYSQL_DATABASE: loan-enquiry
+      MYSQL_USER: root
+      MYSQL_PASSWORD: test123456
+      MYSQL_ROOT_PASSWORD: test123456
+    ports:
+      - 33066:3306
+    networks:
+      - db
+
+  api-getway:
+    container_name: api-gateway
+    env_file: ./api-gateway/.env.docker
+    restart: always
+    build: ./api-gateway
+    ports:
+      - 4000:4000
+    networks:
+      - servers-network
+
+  loan-service:
+    env_file: ./loan-service/.env.docker
+    container_name: loan-service
+    restart: always
+    build: ./loan-service
+    ports:
+      - 3000:3000
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - db
+      - servers-network
+
+networks:
+  db:
+  servers-network:
+    driver: bridge
+    name: servers-network
