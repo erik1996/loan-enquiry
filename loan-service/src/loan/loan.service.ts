@@ -1,5 +1,10 @@
 import axios from 'axios';
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Between,
@@ -15,7 +20,6 @@ import {
   LoanDistributionDefaultedPayloadDto,
   LoanYearsPayloadDto,
 } from './dto/loan.dto';
-
 @Injectable()
 export class LoanService {
   constructor(
@@ -28,7 +32,7 @@ export class LoanService {
     const loan = await this.loanRepository.findOne({ where: { id } });
 
     if (!loan) {
-      throw new Error('Not Found');
+      throw new NotFoundException('Not Found');
     }
 
     return loan;
@@ -104,13 +108,13 @@ export class LoanService {
   }
 
   private getDateRange(sd: Date, ed: Date): FindOperator<Date> {
-    const formatedStartDate = new Date(sd);
-    formatedStartDate.setHours(0, 0, 0, 0);
+    const formattedStartDate = new Date(sd);
+    formattedStartDate.setHours(0, 0, 0, 0);
 
-    const formatedEndDate = new Date(ed);
-    formatedEndDate.setHours(23, 59, 59, 999);
+    const formattedEndDate = new Date(ed);
+    formattedEndDate.setHours(23, 59, 59, 999);
 
-    return Between(formatedStartDate, formatedEndDate);
+    return Between(formattedStartDate, formattedEndDate);
   }
 
   private async getRateByCurrency(currency: string) {
@@ -123,7 +127,10 @@ export class LoanService {
 
       return data.data[currencyKey];
     } catch (err) {
-      throw new Error('Cannot find exchange rate for requested currency');
+      throw new HttpException(
+        { message: 'Cannot find exchange rate for requested currency' },
+        HttpStatus.FAILED_DEPENDENCY,
+      );
     }
   }
 

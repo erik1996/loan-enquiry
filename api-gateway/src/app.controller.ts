@@ -3,7 +3,6 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  NotFoundException,
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
@@ -27,16 +26,10 @@ export class AppController {
     );
 
     if (res.error) {
-      if (res.message === 'Not Found') {
-        // If the response indicates 'Not Found', throw a NotFoundException.
-        throw new NotFoundException(res.message);
-      } else {
-        // If there is an error, create an HttpException with the error message.
-        throw new HttpException(
-          res.error.response.message.join(','),
-          res.error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
+      throw new HttpException(
+        res.error.response.message,
+        res.error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
     return {

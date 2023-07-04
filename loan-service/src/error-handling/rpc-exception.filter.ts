@@ -13,6 +13,10 @@ export class RpcExceptionFilter implements ExceptionFilter {
     this.logger.error(
       `${methodName} failed with message: ${exception?.message}`,
     );
+    // Join all messages as one message
+    exception.response.message = Array.isArray(exception.response.message)
+      ? exception.response.message?.join(', ')
+      : exception?.response?.message;
     // Create a new RpcException with the original exception or a generic message
     return new RpcException(exception || 'Something Went Wrong');
   }
